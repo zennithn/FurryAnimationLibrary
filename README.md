@@ -1,4 +1,4 @@
-# FurryAnimationLibrary
+# Zennith's Furry Animation Library
 
 Plays interactive looping animations in the browser.
 
