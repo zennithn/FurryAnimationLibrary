@@ -2,6 +2,8 @@
 
 Plays interactive looping animations in the browser.
 
+SFW live demo at https://zennith.net/wp-content/uploads/furry-anim-example/example-animation.htm
+
 
 ## What this code does
 
