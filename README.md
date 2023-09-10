@@ -16,12 +16,16 @@ Additionally, the user can make the animation fullscreen, can mute or unmute the
 
 ## Example
 
-You can view an example of the sort of animation that you can create with this code by going to EXAMPLE TBD.
+You can view an example of the sort of animation that you can create with this code by going to EXAMPLE TBD. 
+
+People who are not experts at coding should be able to figure it out within minutes - I've put a lot of effort into making this easy to pick up and run with it!
 
 
 ## Using this code
 
 To use this code, you should download all files from this GitHub repository, edit code where appropriate (e.g. defining frame numbers, adding text, customizing, etc), and add your own content files. 
+
+Most of your customizations should occur in only two files: (1) the main .htm file and (2) the file "furry-anim-aux-text.js". Notepad++ or similar editors would work great; no need to use a full IDE.
 
 All materials should then be uploaded to a web server where you can access that server's filesystem. This means that you probably cannot upload these files directly using, for example, a WordPress uploader. 
 
