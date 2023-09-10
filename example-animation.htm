@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<!--
+	ZENNITH'S FURRY ANIMATION LIBRARY (VERSION 2023-09)
+	This HTML and associated Javascript application was written by Zennith. Copyright 2020,2023.
+	It is covered by a GPL-3.0-or-later license. Please note disclaimers of liability in the 
+	GPL-3.0-or-later license apply in full force if you use this program.
+	-->
+	
+	
+	
+	<!---------------------------------------------------------------------------------->
+	<!-- PAGE BASICS ------------------------------------------------------------------->
+	<!---------------------------------------------------------------------------------->
+
+	<meta name="robots" content="noindex" /> <!--This page probably shouldn't be indexed by search engines.-->
+
+	<title>Example Animation</title>
+	
+	<link rel="shortcut icon" href="tallarra_pool_toy_dragon_crop_icon.ico" type="image/x-icon" />
+	
+	<meta name="description" content="Example of using Zennith's Furry Animation Library" />
+	<meta property="og:title" content="Example Animation" />
+	<meta property="og:type" content="website" />
+
+
+
+	<!---------------------------------------------------------------------------------->
+	<!-- MATERIALS PROVIDED BY ARTIST -------------------------------------------------->
+	<!---------------------------------------------------------------------------------->
+
+	<!-- Any custom fonts or other needs from other sources -->
+	<link href='https://fonts.googleapis.com/css?family=Bubblegum Sans' rel='stylesheet'>
+	
+	<!-- Your video - this should be one of the earliest lines in the header, letting it start loading ASAP -->
+	<link rel="preload" href="example-vid-0001-0500.mp4" as="video">
+
+	<!-- Optional: audio file (with smooth volume ramp-up at beginning and ramp-down at end) -->
+	<link rel="preload" href="MD-2020-A-crickets-faded-ends-for-loop.mp3" as="audio">
+	
+	<!-- Use this file to write a background story, describe licenses and copyright info, etc -->
+	<script src="furry-anim-aux-text.js"></script>
+	
+	
+	<!---------------------------------------------------------------------------------->
+	<!-- SOURCE FILES FOR THE ANIMATION CODE ------------------------------------------->
+	<!---------------------------------------------------------------------------------->
+
+	<script src="furry-anim-lib-audio-ambient.js"></script>
+	<script src="furry-anim-lib-timeline.js"></script>
+	<script src="furry-anim-lib-url.js"></script>
+	<script src="furry-anim-lib-video-canvas.js"></script>
+	<script src="furry-anim-lib-main-interface.js"></script>
+	<script src="furry-anim-lib-splash-screen.js"></script>
+	<script src="furry-anim-lib-popup-menu.js"></script>
+	<link rel="stylesheet" href="furry-anim-lib-style.css">
+
+
+
+	<!---------------------------------------------------------------------------------->
+	<!-- OPEN GRAPH PROPERTIES USED IN LINK PREVIEWS, E.G. DISCORD MESSAGES ------------>
+	<!---------------------------------------------------------------------------------->
+	<meta property="og:description" content="Example of using Zennith's Furry Animation Library" />
+	<meta property="og:image:alt" content="Example Animation" />
+
+	<meta property="og:image:width" content="384" />
+	<meta property="og:image:height" content="216" />
+
+	<!-- This optional property, if used, must be a complete URL that points directly to an HTM file, because Open Graph (OG) is an external web service. -->
+	<!-- You can safely comment it out if not desired. -->
+	<!-- <meta property="og:url" content="" /> -->
+	
+	<!-- This optional property, if used, must be a complete URL that points directly to an image file, because Open Graph (OG) is an external web service. -->
+	<!-- You can safely comment it out if not desired. -->
+	<!-- <meta property="og:image" content="" /> -->
+
+
+
+
+
+</head>
+
+<body> 
+	<div id="anim_app_outer_container"></div>
+
+<script>
+	
+	//---------------------------------------------------------------------------------//
+	//-- MAIN MATERIALS THE ARTIST SHOULD PROVIDE -------------------------------------//
+	//---------------------------------------------------------------------------------//
+	
+	//VIDEO AND AUDIO FILES
+	var VIDEO_SOURCE = "example-vid-0001-0500.mp4"; //should match the "preload" code in the HTML header. 
+	var FRAMES_PER_SECOND = 24.0; //should match the video's true FPS for accurate animation timing.
+	var AUDIO_AMBIENT_SOURCE = "MD-2020-A-crickets-faded-ends-for-loop.mp3"; //should match the "preload" code in the HTML header. 
+	var AUDIO_AMBIENT_LOOP_LENGTH = 10000; //length in milliseconds of each copy of the ambient audio track (two copies will be overlayed and alternately played).
+
+	//var VIDEO_OVERLAY_IMAGE_FILENAME = ""; //To disable overlay image, set this as "".
+	var VIDEO_OVERLAY_IMAGE_FILENAME = "eye-visible-area.png"; //To disable overlay image, set this as "".
+
+	
+	
+	//SPLASH SCREEN
+	var SPLASH_URL_KEY = "splash_status";
+	var SPLASH_URL_VALUE_PROCEED = "proceed";
+	var SPLASH_URL_VALUE_WAIT = "wait";
+	
+	var BUTTON_PROCEED_TEXT = "Let's do it.";
+	var BUTTON_ESCAPE_TEXT = "No, thank you.";
+	var BUTTON_ESCAPE_URL = "https://zennith.net";
+	
+	var SPLASH_OVERLAY_IMAGE_FILENAME = "eye-visible-area.png"; //To disable overlay image, set this as "".
+	//var SPLASH_OVERLAY_IMAGE_FILENAME = ""; //To disable overlay image, set this as "".
+
+	var SPLASH_SCREEN_BACKGROUND_IMAGE = "example-still-image.png";
+	
+	//You can write text in "furry-anim-aux-text.js" and use those strings here.
+	//You are filling out a map that can have any number of key-value pairs.
+	//Keys should be long strings, and values should be ints (millisecond delays).
+	//Each key-value pair will create a new text block that cascades on the splash screen.
+	var splash_screen_cascade_content = new Map([
+		[cascade_intro_text_A, 300],
+		[cascade_intro_text_B, 300],
+		[cascade_intro_text_C, 300],
+		[cascade_intro_text_D, 300],
+		["<br><br>" + content_warning, 500]
+	]);
+	
+	
+	//POPUP MENU
+	//You can write text in "furry-anim-aux-text.js" and use those strings here.
+	//You are filling out a map that can have any number of key-value pairs.
+	//Keys should be short strings, and values should be long strings and can include HTML.
+	//Each key-value pair will create a new tab in the popup interface.
+	//Please remember that your license info must include acknowledgement of this software
+	//as part of its open-source license to you!
+	var POPUP_MENU_CONTENT = new Map([
+		["Description",text_popup_intro_text],
+		["Also see...",text_popup_menu_other_sites],
+		["Copyright and Licenses",text_popup_menu_license_html]
+		
+	]);
+	
+	
+	//---------------------------------------------------------------------------------//
+	//-- ANIMATION APP GENERAL SETUP --------------------------------------------------//
+	//---------------------------------------------------------------------------------//
+	
+	//APPLICATION DATA AND URL STATE
+	var url_state = new URLState(); //For example, encoding whether the user has gone past the splash screen. 
+	url_state.declare_known_url_parameter(
+		SPLASH_URL_KEY,
+		[SPLASH_URL_VALUE_PROCEED, SPLASH_URL_VALUE_WAIT],
+		SPLASH_URL_VALUE_WAIT
+	);
+	
+	
+	//MAIN ANIMATION INTERFACE SETUP
+	var main_interface = new MainInterface(
+		VIDEO_SOURCE,
+		FRAMES_PER_SECOND,
+		AUDIO_AMBIENT_SOURCE,
+		AUDIO_AMBIENT_LOOP_LENGTH,
+		VIDEO_OVERLAY_IMAGE_FILENAME,
+		POPUP_MENU_CONTENT,
+		document.getElementById('anim_app_outer_container')
+	);
+	
+	var timeline_controller = main_interface.get_timeline_controller();
+	var popup_menu_instance = main_interface.get_popup_menu();
+	
+	
+	//SPLASH SCREEN
+	var splash_screen = new SplashScreen();
+	splash_screen.set_splash_screen_visible(true);
+	document.getElementById('anim_app_outer_container').appendChild(splash_screen.get_div());
+	
+	splash_screen.set_foreground_image(SPLASH_OVERLAY_IMAGE_FILENAME);
+	splash_screen.set_background_image(SPLASH_SCREEN_BACKGROUND_IMAGE);
+	splash_screen.set_proceed_button_text(BUTTON_PROCEED_TEXT);
+	splash_screen.set_escape_button_text(BUTTON_ESCAPE_TEXT);
+	splash_screen.set_escape_url(BUTTON_ESCAPE_URL);
+	splash_screen.splash_screen_cascade(splash_screen_cascade_content);
+	
+	
+	
+	//---------------------------------------------------------------------------------//
+	//-- MORE COMPLEX INTERACTIONS OF SYSTEMS IN THE RUNTIME --------------------------//
+	//---------------------------------------------------------------------------------//
+	
+	//DESCRIBE MAJOR CHANGES OF STATE IN THE APP THAT WILL OCCUR
+	
+	//A function to shift the app from the splash screen into the animation.
+	function proceed_to_animation(){
+		//Make sure the URL state is updated.
+		url_state.set_known_url_parameter(SPLASH_URL_KEY, SPLASH_URL_VALUE_PROCEED);
+		
+		//Hide the splash screen.
+		splash_screen.set_splash_screen_visible(false);
+		
+		//Change the interface so it can start playing the animation.
+		main_interface.queue_interface_change_to_play_video();
+	}
+	
+	
+	//SPLASH SCREEN AND URL LOGIC
+	
+	//Get info from the URL. If the right info is there, use the info to activate the main video.
+	//Update the splashScreen, then invoke the function to play the main video.
+	var url_data_splash_screen = url_state.peek_and_sync_known_url_parameter(SPLASH_URL_KEY);
+	if (url_data_splash_screen === SPLASH_URL_VALUE_PROCEED) {
+		proceed_to_animation();
+	}
+
+	//Alternately, wait for info from the splash_screen_button. 
+	//If the right info is there, use the info to activate the main video.
+	//Update the URLState, then invoke the function to play the main video.
+	splash_screen.queue_function_for_proceed_button_activation(
+		proceed_to_animation
+	);
+	
+	
+	
+	//---------------------------------------------------------------------------------//
+	//-- TIMELINE AND MONOLOG ---------------------------------------------------------//
+	//---------------------------------------------------------------------------------//
+
+	//DEFINE FRAMES TO BE USED FOR LOOPS, NARRATIVE TEXT, OR BOTH.
+	
+	//First loop
+	let l_f_start_loop_1_narrative = new LabeledFrame(0);
+	let l_f_start_loop_1 = new LabeledFrame(0);
+	let l_f_loop_1_still_looping = new LabeledFrame(80);
+	let l_f_start_transition_1_2 = new LabeledFrame(160);
+	let l_f_transitioning_to_2 = new LabeledFrame(170);
+	
+	//Second loop
+	let l_f_loop_2_narrative = new LabeledFrame(250);
+	let l_f_start_loop_2 = new LabeledFrame(260);
+	let l_f_loop_2_still_looping = new LabeledFrame(300);
+	let l_f_start_transition_2_end = new LabeledFrame(350);
+	
+	let l_f_exited_loop_2_narrative = new LabeledFrame(360);
+	
+	//Finish
+	let l_f_final = new LabeledFrame(450);
+	
+	
+	//CREATE LOOPS AND ADD THEM TO THE TIMELINE CONTROLLER.
+	let l_loop_1 = new LabeledLoop(l_f_start_loop_1, l_f_start_transition_1_2);
+	let l_loop_2 = new LabeledLoop(l_f_start_loop_2, l_f_start_transition_2_end);
+	
+	timeline_controller.add_loop(l_loop_1);
+	timeline_controller.add_loop(l_loop_2);
+	
+	
+	//CREATE NARRATIVE FRAMES AND ADD THEM TO THE TIMELINE CONTROLLER.
+	let n_frame_will_loop = new NarrativeFrame(l_f_start_loop_1_narrative, "This will keep looping...");
+	let n_frame_use_triangle = new NarrativeFrame(l_f_loop_1_still_looping, "Till you press the triangle");
+	let n_frame_transition_1 = new NarrativeFrame(l_f_transitioning_to_2, "Transitioning...");
+	let n_frame_in_loop_2 = new NarrativeFrame(l_f_loop_2_narrative, "Entered 2nd loop");
+	let n_frame_looping_more = new NarrativeFrame(l_f_loop_2_still_looping, "Will keep looping...");
+	let n_frame_looping_done = new NarrativeFrame(l_f_exited_loop_2_narrative, "Exited 2nd loop...");
+	let n_frame_finished = new NarrativeFrame(l_f_final, "Near the end, resetting...");
+	
+	timeline_controller.add_narrative_frame(n_frame_will_loop);
+	timeline_controller.add_narrative_frame(n_frame_use_triangle);
+	timeline_controller.add_narrative_frame(n_frame_transition_1);
+	timeline_controller.add_narrative_frame(n_frame_in_loop_2);
+	timeline_controller.add_narrative_frame(n_frame_looping_more);
+	timeline_controller.add_narrative_frame(n_frame_looping_done);
+	timeline_controller.add_narrative_frame(n_frame_finished);
+	
+	
+	
+
+
+	</script>
+
+
+</body>
+</html>
